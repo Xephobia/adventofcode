@@ -28,12 +28,28 @@ reportSafety :: (Ord a, Num a) => [a] -> ReportSafety a
 reportSafety (x:xs) = foldl carryOrdering (Unknown x) xs
 reportSafety _ = Unsafe
 
+isSafe :: ReportSafety a -> Bool
+isSafe Unsafe = False
+isSafe _ = True
+
 howManyReportsSafe :: [ReportSafety a] -> Int
 howManyReportsSafe = length . filter isSafe
-  where isSafe Unsafe = False
-        isSafe _ = True
+
+-- brute force approach
+isReportSafeWithProblemDampener :: (Ord a, Num a) => [a] -> Bool
+isReportSafeWithProblemDampener r = any isSafe $ allPosibilities
+  where removeNth _ [] = []
+        removeNth 0 (_:xs) = xs
+        removeNth n (x:xs) = x : removeNth (n-1) xs
+        safetyWithNthRemoved nn rr = reportSafety $ removeNth nn rr
+        replicated = replicate (length r) r
+        allPosibilities = zipWith (flip safetyWithNthRemoved) replicated [0..] -- all the possible ways an element could be deleted
+
+howManyReportsSafeWithProblemDampener :: (Ord a, Num a) => [[a]] -> Int
+howManyReportsSafeWithProblemDampener = length . filter isReportSafeWithProblemDampener
 
 main :: IO ()
 main = do (inputPath : _) <- getArgs
           input <- getPuzzleInput inputPath
           print $ howManyReportsSafe $ map reportSafety input
+          print $ howManyReportsSafeWithProblemDampener input

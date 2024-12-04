@@ -24,7 +24,7 @@ buildLetterGraph css = (nodeFromVertex, vertexFromKey)
     edgeList = concat $ zipWith (\cs y -> zipWith (\c x -> (c, (x, y), adjacentKeys (x, y))) cs [0 ..]) css [0 ..]
     (_, nodeFromVertex, vertexFromKey) = graphFromEdges edgeList
 
--- get all the letters in the chosen direction d from position p
+-- get N letters in the chosen direction d after position p
 getNLettersInDirection :: (Vertex -> (Node, Key, [Key])) -> (Key -> Maybe Vertex) -> Int -> Key -> Key -> [Char]
 getNLettersInDirection nfv vfk n p d = go n p []
   where
@@ -42,8 +42,8 @@ main = do
   (inputPath : _) <- getArgs
   input <- getPuzzleInput inputPath
   let (nfv, vfk) = buildLetterGraph input
-  let lettersList = concat $ zipWith (\cs y -> zipWith (\c x -> (c, (x, y))) cs [0 ..]) input [0 ..]
-  let directions = [(-1, -1), (0, -1), (1, -1), (1, 0), (1, 1), (0, 1), (-1, 1), (-1, 0)]
+  let lettersList = concat $ zipWith (\cs y -> zipWith (\c x -> (c, (x, y))) cs [0 ..]) input [0 ..] -- list of letter with index (position)
+  let directions = adjacentKeys (0,0)
   print $ length $ concatMap (\d -> filter (== "XMAS") $ map (\(c, xy) -> c : getNLettersInDirection nfv vfk 3 xy d) $ filter (('X' ==) . fst) lettersList) directions
-  let getX p = zipWith (getNLettersInDirection nfv vfk 3 . pairwiseSum p) [(-2, -2), (2, -2)] [(1, 1), (-1, 1)]
+  let getX p = zipWith (getNLettersInDirection nfv vfk 3 . pairwiseSum p) [(-2, -2), (2, -2)] [(1, 1), (-1, 1)] -- get two strings that form an 'X' shape around p
   print $ length $ filter (\(_, p) -> all (\s -> (s == "MAS") || (reverse s == "MAS")) $ getX p) $ filter ((== 'A') . fst) lettersList

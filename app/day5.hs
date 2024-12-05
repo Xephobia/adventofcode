@@ -1,3 +1,5 @@
+import Data.List (groupBy, sortBy)
+import qualified Data.Map as Map
 import System.Environment (getArgs)
 
 type Page = Int
@@ -32,9 +34,29 @@ respectsAll os u = all respects os
       (Just b', Just a') -> b' < a'
       _ -> True
 
+buildPredecessors :: [PageOrdering] -> Map.Map Page [Page]
+buildPredecessors os = Map.fromList predsList
+  where
+    updatePred (x, p) (_, p') = (x, p ++ p')
+    equalFst (x1, _) (x2, _) = x1 == x2
+    cmpFst (x1, _) (x2, _) = x1 `compare` x2
+    makePred (x, y) = (y, [x])
+    predsList = map (foldl1 updatePred) $ groupBy equalFst $ sortBy cmpFst $ map makePred os
+
+specialOrd :: Map.Map Page [Page] -> Page -> Page -> Ordering
+specialOrd ps a b = case (bInA, aInB) of
+  (True, False) -> GT
+  (False, True) -> LT
+  _ -> EQ
+  where
+    bInA = maybe False (elem b) $ Map.lookup a ps
+    aInB = maybe False (elem a) $ Map.lookup b ps
+
 main :: IO ()
 main = do
   (inputPath : _) <- getArgs
   (os, us) <- getPuzzleInput inputPath
+  let trueOrdered = buildPredecessors os
   let getMiddle l = l !! (length l `div` 2)
   print $ sum $ map getMiddle $ filter (respectsAll os) us
+  print $ sum $ map (getMiddle . sortBy (specialOrd trueOrdered)) $ filter (not . respectsAll os) us

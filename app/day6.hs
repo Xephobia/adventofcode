@@ -1,16 +1,18 @@
-import Control.Monad.Trans.State (State, evalState, get, put)
-import Data.List (find, nub)
+import Control.Monad.Trans.State.Strict (State, evalState, get, put)
+import Data.List (find)
+import Data.Set (Set)
+import qualified Data.Set as Set
 import System.Environment (getArgs)
 import Prelude hiding (Left, Right)
 
-data Orientation = Up | Right | Bottom | Left deriving (Show)
+data Orientation = Up | Right | Bottom | Left deriving (Show, Ord, Eq)
 
 type Coordinate = (Int, Int)
 
 type Guard = (Coordinate, Orientation)
 
--- (obstactles, walked, guardState)
-type GuardTour = ([Coordinate], Guard)
+-- (walked, guardState)
+type GuardTour = (Set Guard, Guard)
 
 turnRight :: Orientation -> Orientation
 turnRight o = case o of
@@ -22,19 +24,21 @@ turnRight o = case o of
 pairwiseSum :: (Num a, Num b) => (a, b) -> (a, b) -> (a, b)
 pairwiseSum (a1, b1) (a2, b2) = (a1 + a2, b1 + b2)
 
-guardWalk :: Coordinate -> [Coordinate] -> State GuardTour Int
+guardWalk :: Coordinate -> [Coordinate] -> State GuardTour (Int, Bool)
 guardWalk bounds@(bx, by) os = do
   (wks, (gc, go)) <- get
   let nextCoord = pairwiseSum gc $ delta go
   let (wks', g) =
         if nextCoord `elem` os
           then (wks, (gc, turnRight go))
-          else (nextCoord : wks, (nextCoord, go))
+          else (Set.insert (nextCoord, go) wks, (nextCoord, go))
+  let nPoss = Set.size $ Set.map fst wks
   if outsideBounds nextCoord
-    then return $ length $ nub wks
-    else do
-      put (wks', g)
-      guardWalk bounds os
+    then return (nPoss, False)
+    else if g `Set.member` wks
+         then return (nPoss, True)
+         else do put (wks', g)
+                 guardWalk bounds os
   where
     outsideBounds (x, y) = x > bx || y > by || any (< 0) [x, y]
     delta o = case o of
@@ -63,5 +67,6 @@ getPuzzleInput path = do
 main :: IO ()
 main = do
   (inputPath : _) <- getArgs
-  (dims, obs, g) <- getPuzzleInput inputPath
-  print $ evalState (guardWalk dims obs) ([], g)
+  (dims@(xd, yd), obs, g@((gx, gy),_)) <- getPuzzleInput inputPath
+  print $ fst $ evalState (guardWalk dims obs) (Set.empty, g)
+  print $ length $ [() | x <- [0..xd-1], y <- [0..yd-1], (x,y) `notElem` obs, (x,y) /= (gx,gy+1), snd $ evalState (guardWalk dims $ (x,y):obs) (Set.empty, g)]

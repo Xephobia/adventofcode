@@ -1,4 +1,4 @@
-import Control.Monad.Trans.State.Strict (State, evalState, get, put)
+import Control.Monad.Trans.State.Strict (State, evalState, get, put, runState)
 import Data.List (find)
 import Data.Set (Set)
 import qualified Data.Set as Set
@@ -35,12 +35,14 @@ guardWalk bounds@(bx, by) os = do
   let nPoss = Set.size $ Set.map fst wks
   if outsideBounds nextCoord
     then return (nPoss, False)
-    else if g `Set.member` wks
-         then return (nPoss, True)
-         else do put (wks', g)
-                 guardWalk bounds os
+    else
+      if g `Set.member` wks
+        then return (nPoss, True)
+        else do
+          put (wks', g)
+          guardWalk bounds os
   where
-    outsideBounds (x, y) = x > bx || y > by || any (< 0) [x, y]
+    outsideBounds (x, y) = x >= bx || y >= by || any (< 0) [x, y]
     delta o = case o of
       Up -> (0, 1)
       Right -> (1, 0)
@@ -67,6 +69,17 @@ getPuzzleInput path = do
 main :: IO ()
 main = do
   (inputPath : _) <- getArgs
-  (dims@(xd, yd), obs, g@((gx, gy),_)) <- getPuzzleInput inputPath
-  print $ fst $ evalState (guardWalk dims obs) (Set.empty, g)
-  print $ length $ [() | x <- [0..xd-1], y <- [0..yd-1], (x,y) `notElem` obs, (x,y) /= (gx,gy+1), snd $ evalState (guardWalk dims $ (x,y):obs) (Set.empty, g)]
+  (dims@(bx, by), obs, g@(gxy, _)) <- getPuzzleInput inputPath
+  let outsideBounds (x, y) = x >= bx || y >= by || any (< 0) [x, y]
+  let ((nWks, _), (wks, _)) = runState (guardWalk dims obs) (Set.singleton g, g)
+  print nWks
+  print
+    $ length
+    $ filter
+      ( \x ->
+          x /= gxy
+            && not (outsideBounds x)
+            && snd (evalState (guardWalk dims $ x : obs) (Set.singleton g, g))
+      )
+    $ map fst
+    $ Set.elems wks

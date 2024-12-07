@@ -1,35 +1,20 @@
-import Control.Monad (replicateM)
 import GHC.Num (integerLogBase)
 import System.Environment (getArgs)
+import Control.Monad (guard)
 
-data Token a = Number a | Plus | Mul | Concat deriving (Show, Eq)
+data Op = Plus | Mul | Concat deriving (Show, Eq)
 
-intersperseL :: [a] -> [a] -> [a]
-intersperseL [] ys = ys
-intersperseL _ [] = []
-intersperseL (x : xs) (y : ys) = y : x : intersperseL xs ys
+apply :: Integer -> Integer -> Op -> Integer
+apply a b Plus = a + b
+apply a b Mul  = a * b
+apply a b Concat  = 10 ^ (integerLogBase 10 b + 1) * a + b
 
-fld :: (Token Integer, Maybe (Token Integer)) -> Token Integer -> (Token Integer, Maybe (Token Integer))
-fld (n@(Number _), Nothing) Plus = (n, Just Plus)
-fld (n@(Number _), Nothing) Mul = (n, Just Mul)
-fld (n@(Number _), Nothing) Concat = (n, Just Concat)
-fld (Number a, Just Plus) (Number b) = (Number (a + b), Nothing)
-fld (Number a, Just Mul) (Number b) = (Number (a * b), Nothing)
-fld (Number a, Just Concat) (Number b) = (Number (10 ^ (integerLogBase 10 b + 1) * a + b), Nothing)
-
-carteProd :: Int -> [a] -> [[a]]
-carteProd = replicateM
-
-isNumber :: Token a -> Bool
-isNumber (Number _) = True
-isNumber _ = False
-
-allOpsChain :: [Token Integer] -> Integer -> [Integer] -> [[Token Integer]]
-allOpsChain ops n ns =
-  map (filter (not . isNumber)) $
-    filter (\(nu : o : r) -> fst (foldl fld (nu, Just o) r) == Number n) $
-      map (`intersperseL` map Number ns) $
-        carteProd (length ns - 1) ops
+strategic :: [Op] -> Integer -> [Integer] -> [()]
+strategic ops target (x:xs) = strategic' x xs
+  where strategic' x' (y:ys) = do result <- apply x' y <$> ops
+                                  guard (result <= target)
+                                  strategic' result ys
+        strategic' x' [] = guard (x' == target)
 
 getPuzzleInput :: FilePath -> IO [(Integer, [Integer])]
 getPuzzleInput path = do
@@ -44,8 +29,8 @@ main = do
   print $
     sum $
       map fst $
-        filter (not . null . uncurry (allOpsChain [Plus, Mul])) input
+        filter (not . null . uncurry (strategic [Plus,Mul])) input
   print $
     sum $
       map fst $
-        filter (not . null . uncurry (allOpsChain [Plus, Mul, Concat])) input
+        filter (not . null . uncurry (strategic [Plus,Mul, Concat])) input

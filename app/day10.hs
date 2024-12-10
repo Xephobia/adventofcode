@@ -1,7 +1,7 @@
 import Data.Array (Array, assocs, bounds, listArray, (!))
 import Data.Ix (Ix, inRange, index, range, rangeSize)
-import Data.Set (Set)
-import qualified Data.Set as Set
+import Data.Map.Strict (Map)
+import qualified Data.Map.Strict as Map
 import System.Environment (getArgs)
 
 newtype Pt = Pt (Int, Int) deriving (Ord, Eq, Show)
@@ -27,14 +27,14 @@ directions tm p = filter (\x -> inRange b x && ((tm ! x) - (tm ! p) == 1)) adj
     adj = map ((p +) . Pt) [(-1, 0), (1, 0), (0, -1), (0, 1)]
     b = bounds tm
 
-walk :: TopoMap -> Pt -> Set Pt
+walk :: TopoMap -> Pt -> Map Pt Int
 walk tm p =
   if tm ! p == 9
-    then Set.singleton p
+    then Map.singleton p 1
     else
       if null pos
-        then Set.empty
-        else Set.unions $ map (\p' -> walk tm p') pos
+        then Map.empty
+        else Map.unionsWith (+) $ map (walk tm) pos
   where
     pos = directions tm p
 
@@ -52,4 +52,5 @@ main :: IO ()
 main = do
   (p : _) <- getArgs
   (tm, ss) <- getPuzzleInput p
-  print $ sum $ map (Set.size . walk tm) ss
+  print $ sum $ map (Map.size . walk tm) ss
+  print $ sum $ map (Map.foldl' (+) 0 . walk tm) ss

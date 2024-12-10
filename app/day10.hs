@@ -28,13 +28,10 @@ directions tm p = filter (\x -> inRange b x && ((tm ! x) - (tm ! p) == 1)) adj
     b = bounds tm
 
 walk :: TopoMap -> Pt -> Map Pt Int
-walk tm p =
-  if tm ! p == 9
-    then Map.singleton p 1
-    else
-      if null pos
-        then Map.empty
-        else Map.unionsWith (+) $ map (walk tm) pos
+walk tm p
+  | tm ! p == 9 = Map.singleton p 1
+  | null pos = Map.empty
+  | otherwise = Map.unionsWith (+) $ map (walk tm) pos
   where
     pos = directions tm p
 

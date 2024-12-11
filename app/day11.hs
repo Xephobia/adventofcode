@@ -1,9 +1,9 @@
 import Control.Monad.Trans.State.Strict
-import Data.Foldable (foldl')
+import Data.Foldable (foldMap')
 import Data.Functor ((<&>))
 import Data.HashMap.Strict (HashMap, (!?))
 import qualified Data.HashMap.Strict as HM
-import Data.Sequence (Seq, (><))
+import Data.Sequence (Seq)
 import qualified Data.Sequence as Seq
 import GHC.Num (integerLogBase)
 import System.Environment (getArgs)
@@ -24,7 +24,7 @@ blinkTimes n n' = do
     Nothing -> do
       let bs = blink n'
       let s = execState (mapM (blinkTimes (n - 1)) bs) mem
-      let rs = foldl' (><) Seq.empty $ (\x -> s HM.! (n - 1, x)) <$> bs
+      let rs = foldMap' (\x -> s HM.! (n - 1, x)) bs
       put $ HM.insert (n, n') rs s
       return rs
 

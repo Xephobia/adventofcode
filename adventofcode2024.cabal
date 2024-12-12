@@ -58,7 +58,7 @@ executable adventofcode2024-day1
     main-is:          day1.hs
 
     -- Modules included in this executable, other than Main.
-    -- other-modules: 
+    -- other-modules:
 
     -- LANGUAGE extensions used by modules in this package.
     -- other-extensions:
@@ -80,7 +80,7 @@ executable adventofcode2024-day2
     main-is:          day2.hs
 
     -- Modules included in this executable, other than Main.
-    -- other-modules: 
+    -- other-modules:
 
     -- LANGUAGE extensions used by modules in this package.
     -- other-extensions:
@@ -102,7 +102,7 @@ executable adventofcode2024-day3
     main-is:          day3.hs
 
     -- Modules included in this executable, other than Main.
-    -- other-modules: 
+    -- other-modules:
 
     -- LANGUAGE extensions used by modules in this package.
     -- other-extensions:
@@ -124,7 +124,7 @@ executable adventofcode2024-day4
     main-is:          day4.hs
 
     -- Modules included in this executable, other than Main.
-    -- other-modules: 
+    -- other-modules:
 
     -- LANGUAGE extensions used by modules in this package.
     -- other-extensions:
@@ -136,7 +136,7 @@ executable adventofcode2024-day4
     hs-source-dirs:   app
 
     -- Base language which the package is written in.
-    default-language: Haskell2010    
+    default-language: Haskell2010
 
 executable adventofcode2024-day5
     -- Import common warning flags.
@@ -146,7 +146,7 @@ executable adventofcode2024-day5
     main-is:          day5.hs
 
     -- Modules included in this executable, other than Main.
-    -- other-modules: 
+    -- other-modules:
 
     -- LANGUAGE extensions used by modules in this package.
     -- other-extensions:
@@ -168,7 +168,7 @@ executable adventofcode2024-day6
     main-is:          day6.hs
 
     -- Modules included in this executable, other than Main.
-    -- other-modules: 
+    -- other-modules:
 
     -- LANGUAGE extensions used by modules in this package.
     -- other-extensions:
@@ -190,7 +190,7 @@ executable adventofcode2024-day7
     main-is:          day7.hs
 
     -- Modules included in this executable, other than Main.
-    -- other-modules: 
+    -- other-modules:
 
     -- LANGUAGE extensions used by modules in this package.
     -- other-extensions:
@@ -203,7 +203,7 @@ executable adventofcode2024-day7
 
     -- Base language which the package is written in.
     default-language: Haskell2010
-    
+
 executable adventofcode2024-day8
     -- Import common warning flags.
     import:           warnings
@@ -212,7 +212,7 @@ executable adventofcode2024-day8
     main-is:          day8.hs
 
     -- Modules included in this executable, other than Main.
-    -- other-modules: 
+    -- other-modules:
 
     -- LANGUAGE extensions used by modules in this package.
     -- other-extensions:
@@ -234,7 +234,7 @@ executable adventofcode2024-day9
     main-is:          day9.hs
 
     -- Modules included in this executable, other than Main.
-    -- other-modules: 
+    -- other-modules:
 
     -- LANGUAGE extensions used by modules in this package.
     -- other-extensions:
@@ -246,7 +246,7 @@ executable adventofcode2024-day9
     hs-source-dirs:   app
 
     -- Base language which the package is written in.
-    default-language: Haskell2010    
+    default-language: Haskell2010
 
 executable adventofcode2024-day10
     -- Import common warning flags.
@@ -256,7 +256,7 @@ executable adventofcode2024-day10
     main-is:          day10.hs
 
     -- Modules included in this executable, other than Main.
-    -- other-modules: 
+    -- other-modules:
 
     -- LANGUAGE extensions used by modules in this package.
     -- other-extensions:
@@ -278,7 +278,7 @@ executable adventofcode2024-day11
     main-is:          day11.hs
 
     -- Modules included in this executable, other than Main.
-    -- other-modules: 
+    -- other-modules:
 
     -- LANGUAGE extensions used by modules in this package.
     -- other-extensions:

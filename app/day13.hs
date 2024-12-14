@@ -1,10 +1,13 @@
+import Control.Monad (foldM)
 import Data.Char (isDigit)
+import Data.Maybe (fromMaybe)
+import Math.LinearEquationSolver (Solver (Z3), solveIntegerLinearEqs)
 import System.Environment (getArgs)
 import Text.ParserCombinators.ReadP
 
-type Coeffs = (Int, Int)
+type Coeffs = (Integer, Integer)
 
-type Target = (Int, Int)
+type Target = (Integer, Integer)
 
 type ClawMachine = (Coeffs, Coeffs, Target)
 
@@ -32,11 +35,16 @@ getPuzzleInput p = do
   raw <- readFile p
   return $ head [x | (x, _) <- readP_to_S (machines <* optional (char '\n') <* eof) raw]
 
-solve :: ClawMachine -> [Coeffs]
-solve ((ax, ay), (bx, by), (tx, ty)) = [(na, nb) | na <- [0 .. 100], nb <- [0 .. 100], na * ax + nb * bx == tx, na * ay + nb * by == ty]
+solve :: ClawMachine -> IO (Maybe Coeffs)
+solve ((ax, ay), (bx, by), (tx, ty)) = (fit <$>) <$> solveIntegerLinearEqs Z3 [[ax, bx], [ay, by]] [tx, ty]
+  where
+    fit [na, nb] = (na, nb)
 
 main :: IO ()
 main = do
   (ip : _) <- getArgs
   i <- getPuzzleInput ip
-  print $ sum $ map ((\(na, nb) -> 3 * na + nb) . head) $ filter (not . null) $ map solve i
+  ss <- map (maybe 0 (\(na, nb) -> 3 * na + nb)) <$> mapM solve i
+  print $ sum ss
+  sss <- map (maybe 0 (\(na, nb) -> 3 * na + nb)) <$> mapM (solve . (\(a, b, (tx, ty)) -> (a, b, (tx + 10000000000000, ty + 10000000000000)))) i
+  print $ sum sss

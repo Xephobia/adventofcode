@@ -326,7 +326,7 @@ executable adventofcode2024-day13
     -- other-extensions:
 
     -- Other library packages from which modules are imported.
-    build-depends:    base
+    build-depends:    base >=4.19, linearEqSolver, sbv <= 10.10
 
     -- Directories containing source files.
     hs-source-dirs:   app

@@ -347,7 +347,7 @@ executable adventofcode2024-day14
     -- other-extensions:
 
     -- Other library packages from which modules are imported.
-    build-depends:    base, transformers, lens
+    build-depends:    base, transformers, lens, unordered-containers, hashable
 
     -- Directories containing source files.
     hs-source-dirs:   app
